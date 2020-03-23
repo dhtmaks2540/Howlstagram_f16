@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!--사진을 올린 사람의 프로필과 이름이 뜨는 LinearLayout-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/iv_detailviewitem_profile"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_margin="7.5dp"
+            android:src="@drawable/ic_launcher_background" />
+
+        <TextView
+            android:id="@+id/tv_detailviewitem_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User_name" />
+    </LinearLayout>
+
+    <!--올린 사진이 뜨는 ImageView-->
+    <ImageView
+        android:id="@+id/iv_detailviewitem_content"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:scaleType="fitXY" />
+
+    <!--좋아요 버튼과 댓글을 다는 LinearLayout-->
+    <LinearLayout
+        android:layout_marginLeft="8dp"
+        android:gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <ImageView
+            android:id="@+id/iv_detailviewitem_favorite"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/ic_favorite_border" />
+        <ImageView
+            android:id="@+id/iv_detailviewitem_comment"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:src="@drawable/ic_chat_black" />
+    </LinearLayout>
+
+    <!--Like를 카운트해주는 TextView-->
+    <TextView
+        android:id="@+id/tv_detailviewitem_favoritecounter"
+        android:text="like 0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <!--설명글을 보여주는 Textview-->
+    <TextView
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:id="@+id/tv_detailviewitem_explain"
+        android:text="Explain content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

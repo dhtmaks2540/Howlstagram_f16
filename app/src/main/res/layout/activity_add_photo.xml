@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".navigation.AddPhotoActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:id="@+id/tb_add_photo">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/logo_title"/>
+    </androidx.appcompat.widget.Toolbar>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorDivision"
+        android:id="@+id/ll_toolbar_division"
+        android:layout_below="@id/tb_add_photo"
+        android:orientation="horizontal"></LinearLayout>
+
+    <ImageView
+        android:id="@+id/iv_addphoto"
+        android:layout_margin="8dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_below="@id/ll_toolbar_division"/>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/editText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ll_toolbar_division"
+        android:layout_toRightOf="@id/iv_addphoto">
+        <EditText
+            android:gravity="top"
+            android:id="@+id/et_addphoto_edit_explain"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:hint="@string/hint_image_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+    <Button
+        android:id="@+id/btn_addphoto_upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/upload_image"
+        android:layout_below="@+id/editText"
+        android:layout_toRightOf="@id/iv_addphoto"
+        android:theme="@style/ButtonStyle"/>
+
+</RelativeLayout>
