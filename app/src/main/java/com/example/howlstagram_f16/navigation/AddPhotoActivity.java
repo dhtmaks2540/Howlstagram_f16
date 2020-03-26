@@ -98,8 +98,8 @@ public class AddPhotoActivity extends AppCompatActivity {
             }
         });*/
 
-        /*// Promise method
-        Task<Uri> uriTask = storageRef.putFile(photoUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+        // Promise method
+        /*Task<Uri> uriTask = storageRef.putFile(photoUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
             public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                 return storageRef.getDownloadUrl();
