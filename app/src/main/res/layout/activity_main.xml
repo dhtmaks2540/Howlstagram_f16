@@ -14,8 +14,25 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/iv_toolbar_back"
+                android:src="@drawable/ic_arrow_back"
+                android:layout_marginLeft="22dp"
+                android:layout_alignParentLeft="true"
+                android:layout_width="35dp"
+                android:layout_height="35dp"/>
+            <TextView
+                android:id="@+id/tv_toolbar_username"
+                android:layout_toRightOf="@id/iv_toolbar_back"
+                android:gravity="center"
+                android:textColor="@color/colorNavIcon"
+                android:textSize="16sp"
+                android:text="UserID"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
 
             <ImageView
+                android:id="@+id/iv_toolbar_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/logo_title"/>

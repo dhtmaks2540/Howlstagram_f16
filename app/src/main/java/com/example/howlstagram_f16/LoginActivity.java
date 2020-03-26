@@ -100,6 +100,12 @@ public class LoginActivity extends AppCompatActivity {
         //printHashKey(this);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        moveMainPage(auth.getCurrentUser());
+    }
+
     // 6rPgO+GTlUsawC6wyICmRHljmho=
     public static void printHashKey(Context pContext) {
         try {
@@ -232,6 +238,7 @@ public class LoginActivity extends AppCompatActivity {
     void moveMainPage(FirebaseUser user) {
         if (user != null) {
             startActivity(new Intent(this, MainActivity.class));
+            finish();
         }
     }
 

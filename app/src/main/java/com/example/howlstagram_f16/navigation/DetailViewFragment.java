@@ -63,6 +63,8 @@ public class DetailViewFragment extends Fragment {
                 public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
                     contentDTOs.clear();
                     contentUidList.clear();
+                    if(queryDocumentSnapshots == null) return;
+
                     for(DocumentSnapshot snapshot : queryDocumentSnapshots.getDocuments()) {
                         ContentDTO item = snapshot.toObject(new ContentDTO().getClass());
                         contentDTOs.add(item);
@@ -129,6 +131,19 @@ public class DetailViewFragment extends Fragment {
                 // This is unlike status
                 detailViewItemFavoriteImageview.setImageResource(R.drawable.ic_favorite_border);
             }
+
+            // This code is when the profile image is clicked
+            detailViewItemProfile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    UserFragment fragment = new UserFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("destinationUid", contentDTOs.get(position).getUid());
+                    bundle.putString("userId", contentDTOs.get(position).getUserId());
+                    fragment.setArguments(bundle);
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fl_main_content, fragment).commit();
+                }
+            });
         }
 
         @Override
