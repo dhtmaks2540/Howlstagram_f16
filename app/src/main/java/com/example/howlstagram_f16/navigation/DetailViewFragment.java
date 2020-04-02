@@ -1,5 +1,6 @@
 package com.example.howlstagram_f16.navigation;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,6 +57,7 @@ public class DetailViewFragment extends Fragment {
         protected ImageView detailViewItemContent;
         protected ImageView detailViewItemProfileImage;
         protected ImageView detailViewItemFavoriteImageview;
+        protected ImageView detailViewItemComment;
 
         DetailViewRecyclerViewAdapter() {
             firestore.collection("images").orderBy("timestamp").addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -142,6 +144,17 @@ public class DetailViewFragment extends Fragment {
                     bundle.putString("userId", contentDTOs.get(position).getUserId());
                     fragment.setArguments(bundle);
                     getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fl_main_content, fragment).commit();
+                }
+            });
+
+            // 말풍선 클릭 이벤트
+            detailViewItemComment = viewHolder.findViewById(R.id.iv_detailviewitem_comment);
+            detailViewItemComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(v.getContext(), CommentActivity.class);
+                    intent.putExtra("contentUid", contentUidList.get(position));
+                    startActivity(intent);
                 }
             });
         }

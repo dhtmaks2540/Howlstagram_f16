@@ -2,6 +2,7 @@ package com.example.howlstagram_f16.navigation;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -34,6 +36,7 @@ import java.util.Map;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,6 +57,8 @@ public class UserFragment extends Fragment {
     BottomNavigationView bottomNavigationView = null;
     ImageView toolbarTitleLogo = null;
     ImageView accountProfile = null;
+    TextView accountFollowingCount = null;
+    TextView accountFollowerCount = null;
 
     public static int PICK_PROFILE_FROM_ALBUM = 10;
 
@@ -70,6 +75,7 @@ public class UserFragment extends Fragment {
 
         if(uid == currentUserId) {
             // MyPage
+            Toast.makeText(getActivity(), "MyPage", Toast.LENGTH_LONG).show();
             accountFollowSignout.setText(getString(R.string.signout));
             accountFollowSignout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -81,6 +87,7 @@ public class UserFragment extends Fragment {
             });
         } else {
             // Other user page
+            Toast.makeText(getActivity(), "OtherPage", Toast.LENGTH_LONG).show();
             accountFollowSignout.setText(getString(R.string.follow));
             final MainActivity mainActivity = (MainActivity)getActivity();
             toolbarUserName = mainActivity.findViewById(R.id.tv_toolbar_username);
@@ -107,6 +114,8 @@ public class UserFragment extends Fragment {
             });
         }
 
+        accountFollowerCount = fragmentView.findViewById(R.id.tv_account_follower_count);
+        accountFollowingCount = fragmentView.findViewById(R.id.tv_account_following_count);
         accountPostCount = fragmentView.findViewById(R.id.tv_account_post_count);
 
         recyclerAccountView = fragmentView.findViewById(R.id.rcv_accont);
@@ -126,7 +135,35 @@ public class UserFragment extends Fragment {
 
         // 프로필 이미지 불러오기
         getProfileImage();
+        getFollowerAndFollowing();
         return fragmentView;
+    }
+
+    void getFollowerAndFollowing() {
+        firestore.collection("users").document(uid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable DocumentSnapshot documentSnapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                if(documentSnapshot == null) return;
+                FollowDTO followDTO = documentSnapshot.toObject(FollowDTO.class);
+                if(Integer.toString(followDTO.getFollowingCount()) != null) {
+                    accountFollowingCount.setText(Integer.toString(followDTO.getFollowingCount()));
+                }
+                if(Integer.toString(followDTO.getFollowerCount()) != null) {
+                    accountFollowerCount.setText(Integer.toString(followDTO.getFollowerCount()));
+                    // 만약 내가 팔로우를 하고있으면
+                    if(followDTO.getFollowers().containsKey(currentUserId)) {
+                        accountFollowSignout.setText(getString(R.string.follow_cancel));
+                        accountFollowSignout.getBackground().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorLightGray), PorterDuff.Mode.MULTIPLY);
+                    } else { // 내가 팔로우를 안하고있으면
+                        // 상대방 유저 프레그먼트일때
+                        if(uid != currentUserId) {
+                            accountFollowSignout.setText(getString(R.string.follow));
+                            accountFollowSignout.getBackground().setColorFilter(null);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     void requestFollow() {
@@ -140,23 +177,25 @@ public class UserFragment extends Fragment {
                 if(followDTO == null) {
                     followDTO = new FollowDTO();
                     followDTO.setFollowingCount(1);
-                    followDTO.getFollowings().put(uid, true);
+                    followDTO.getFollowers().put(uid, true);
 
                     transaction.set(tsDocFollowing, followDTO);
+                    return transaction;
                 }
 
                 if(followDTO.getFollowings().containsKey(uid)) {
                     // It remove following third person when a third person follow me
                     followDTO.setFollowingCount(followDTO.getFollowingCount() - 1);
-                    followDTO.getFollowers().remove(uid);
+                    followDTO.getFollowings().remove(uid);
                 } else {
                     // It add following third person when a third person do not follow me
                     followDTO.setFollowingCount(followDTO.getFollowingCount() + 1);
-                    followDTO.getFollowers().put(uid, true);
+                    followDTO.getFollowings().put(uid, true);
                 }
 
                 transaction.set(tsDocFollowing, followDTO);
-                return null;
+                return transaction;
+                //return null;
             }
         });
 
@@ -166,13 +205,14 @@ public class UserFragment extends Fragment {
             @Nullable
             @Override
             public Object apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                FollowDTO followDTO = transaction.get(tsDocFollowing).toObject(FollowDTO.class);
+                FollowDTO followDTO = transaction.get(tsDocFollower).toObject(FollowDTO.class);
                 if(followDTO == null) {
                     followDTO = new FollowDTO();
                     followDTO.setFollowerCount(1);
-                    followDTO.getFollowers().put(uid, true);
+                    followDTO.getFollowers().put(currentUserId, true);
 
                     transaction.set(tsDocFollower, followDTO);
+                    return transaction;
                 }
 
                 if(followDTO.getFollowers().containsKey(currentUserId)) {
@@ -186,7 +226,8 @@ public class UserFragment extends Fragment {
                 }
 
                 transaction.set(tsDocFollower, followDTO);
-                return null;
+                return transaction;
+                //return null;
             }
         });
     }
@@ -196,8 +237,9 @@ public class UserFragment extends Fragment {
             @Override
             public void onEvent(@javax.annotation.Nullable DocumentSnapshot documentSnapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
                 if(documentSnapshot == null) return;
-                if(documentSnapshot != null) {
-                    String url = (String)documentSnapshot.getData().get("image");
+                if(documentSnapshot.getData() != null) {
+                    //if(getActivity() == null) return;
+                    Object url = documentSnapshot.getData().get("image");
                     Glide.with(getActivity()).load(url).apply(RequestOptions.circleCropTransform()).into(accountProfile);
                 }
             }
