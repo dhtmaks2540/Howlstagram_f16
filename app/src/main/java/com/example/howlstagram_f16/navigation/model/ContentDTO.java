@@ -4,13 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ContentDTO {
-    String explain = null;
-    String imageUrl = null;
-    String uid = null;
-    String userId = null;
-    long timestamp = 0;
-    int favoriteCount = 0;
-    Map<String, Boolean> favorites = new HashMap<>();
+    public String explain = null;
+    public String imageUrl = null;
+    public String uid = null;
+    public String userId = null;
+    public long timestamp = 0;
+    public int favoriteCount = 0;
+    public Map<String, Boolean> favorites = new HashMap<>();
+
+    public ContentDTO() {
+
+    }
 
     public String getExplain() {
         return explain;
@@ -68,42 +72,4 @@ public class ContentDTO {
         this.favorites = favorites;
     }
 
-    public class Comment {
-        String uid = null;
-        String userId = null;
-        String comment = null;
-        long timestamp = 0;
-
-        public String getUid() {
-            return uid;
-        }
-
-        public void setUid(String uid) {
-            this.uid = uid;
-        }
-
-        public String getUserId() {
-            return userId;
-        }
-
-        public void setUserId(String userId) {
-            this.userId = userId;
-        }
-
-        public String getComment() {
-            return comment;
-        }
-
-        public void setComment(String comment) {
-            this.comment = comment;
-        }
-
-        public long getTimestamp() {
-            return timestamp;
-        }
-
-        public void setTimestamp(long timestamp) {
-            this.timestamp = timestamp;
-        }
-    }
 }

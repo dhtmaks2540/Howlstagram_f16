@@ -18,6 +18,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.howlstagram_f16.LoginActivity;
 import com.example.howlstagram_f16.MainActivity;
 import com.example.howlstagram_f16.R;
+import com.example.howlstagram_f16.navigation.model.AlarmDTO;
 import com.example.howlstagram_f16.navigation.model.ContentDTO;
 import com.example.howlstagram_f16.navigation.model.FollowDTO;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -75,7 +76,6 @@ public class UserFragment extends Fragment {
 
         if(uid == currentUserId) {
             // MyPage
-            Toast.makeText(getActivity(), "MyPage", Toast.LENGTH_LONG).show();
             accountFollowSignout.setText(getString(R.string.signout));
             accountFollowSignout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -87,7 +87,6 @@ public class UserFragment extends Fragment {
             });
         } else {
             // Other user page
-            Toast.makeText(getActivity(), "OtherPage", Toast.LENGTH_LONG).show();
             accountFollowSignout.setText(getString(R.string.follow));
             final MainActivity mainActivity = (MainActivity)getActivity();
             toolbarUserName = mainActivity.findViewById(R.id.tv_toolbar_username);
@@ -152,12 +151,12 @@ public class UserFragment extends Fragment {
                     accountFollowerCount.setText(Integer.toString(followDTO.getFollowerCount()));
                     // 만약 내가 팔로우를 하고있으면
                     if(followDTO.getFollowers().containsKey(currentUserId)) {
-                        accountFollowSignout.setText(getString(R.string.follow_cancel));
+                        accountFollowSignout.setText(getActivity().getString(R.string.follow_cancel));
                         accountFollowSignout.getBackground().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorLightGray), PorterDuff.Mode.MULTIPLY);
                     } else { // 내가 팔로우를 안하고있으면
                         // 상대방 유저 프레그먼트일때
                         if(uid != currentUserId) {
-                            accountFollowSignout.setText(getString(R.string.follow));
+                            accountFollowSignout.setText(getActivity().getString(R.string.follow));
                             accountFollowSignout.getBackground().setColorFilter(null);
                         }
                     }
@@ -210,6 +209,7 @@ public class UserFragment extends Fragment {
                     followDTO = new FollowDTO();
                     followDTO.setFollowerCount(1);
                     followDTO.getFollowers().put(currentUserId, true);
+                    followerAlarm(uid);
 
                     transaction.set(tsDocFollower, followDTO);
                     return transaction;
@@ -223,6 +223,7 @@ public class UserFragment extends Fragment {
                     // It add my follower when i don't follow a third person
                     followDTO.setFollowerCount(followDTO.getFollowerCount() + 1);
                     followDTO.getFollowers().put(currentUserId, true);
+                    followerAlarm(uid);
                 }
 
                 transaction.set(tsDocFollower, followDTO);
@@ -232,13 +233,29 @@ public class UserFragment extends Fragment {
         });
     }
 
+    // Follow 알림 이벤트 메서드
+    void followerAlarm(String destinationUid) {
+        AlarmDTO alarmDTO = new AlarmDTO();
+        alarmDTO.setDestinationUid(destinationUid);
+        alarmDTO.setUserId(auth.getCurrentUser().getEmail());
+        alarmDTO.setUid(auth.getCurrentUser().getUid());
+        alarmDTO.setKind(2);
+        alarmDTO.setTimestamp(System.currentTimeMillis());
+
+        // Firestroe DB에 데이터 저장하기
+        FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO);
+    }
+
+    // 프로필이미지를 불러오는 메서드
     void getProfileImage() {
         firestore.collection("profileImages").document(uid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@javax.annotation.Nullable DocumentSnapshot documentSnapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                if(documentSnapshot == null) return;
+                if(documentSnapshot == null) {
+                    return;
+                }
                 if(documentSnapshot.getData() != null) {
-                    //if(getActivity() == null) return;
+                    if(getActivity() == null) return;
                     Object url = documentSnapshot.getData().get("image");
                     Glide.with(getActivity()).load(url).apply(RequestOptions.circleCropTransform()).into(accountProfile);
                 }

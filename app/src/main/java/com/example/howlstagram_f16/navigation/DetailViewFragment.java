@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.howlstagram_f16.R;
+import com.example.howlstagram_f16.navigation.model.AlarmDTO;
 import com.example.howlstagram_f16.navigation.model.ContentDTO;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -154,6 +155,7 @@ public class DetailViewFragment extends Fragment {
                 public void onClick(View v) {
                     Intent intent = new Intent(v.getContext(), CommentActivity.class);
                     intent.putExtra("contentUid", contentUidList.get(position));
+                    intent.putExtra("destinationUid", contentDTOs.get(position).getUid());
                     startActivity(intent);
                 }
             });
@@ -164,7 +166,7 @@ public class DetailViewFragment extends Fragment {
             return contentDTOs.size();
         }
 
-        public void favoriteEvent(int position) {
+        public void favoriteEvent(final int position) {
             final DocumentReference tsDoc = firestore.collection("images").document(contentUidList.get(position));
             firestore.runTransaction(new Transaction.Function<Void>() {
 
@@ -181,6 +183,7 @@ public class DetailViewFragment extends Fragment {
                         // When the button is not clicked
                         contentDTO.setFavoriteCount(contentDTO.getFavoriteCount() + 1);
                         contentDTO.getFavorites().put(uid, true);
+                        favoriteAlarm(contentDTOs.get(position).getUid());
                     }
 
                     transaction.set(tsDoc, contentDTO);
@@ -188,6 +191,19 @@ public class DetailViewFragment extends Fragment {
                     return null;
                 }
             });
+        }
+
+        // 알람기능의 메소드
+        void favoriteAlarm(String destinationUid) {
+            AlarmDTO alarmDTO = new AlarmDTO();
+            alarmDTO.setDestinationUid(destinationUid);
+            alarmDTO.setUserId(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            alarmDTO.setUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            alarmDTO.setKind(0);
+            alarmDTO.setTimestamp(System.currentTimeMillis());
+
+            // Firestore에 데이터 넣어주기
+            FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO);
         }
     }
 }
