@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.example.howlstagram_f16.R;
 import com.example.howlstagram_f16.navigation.model.AlarmDTO;
 import com.example.howlstagram_f16.navigation.model.ContentDTO;
+import com.example.howlstagram_f16.navigation.util.FcmPush;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -204,6 +205,9 @@ public class DetailViewFragment extends Fragment {
 
             // Firestore에 데이터 넣어주기
             FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO);
+
+            String message = FirebaseAuth.getInstance().getCurrentUser().getEmail() + getString(R.string.alarm_favorite);
+            new FcmPush().sendMessage(destinationUid, "Howlstagram", message);
         }
     }
 }

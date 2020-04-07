@@ -21,6 +21,7 @@ import com.example.howlstagram_f16.R;
 import com.example.howlstagram_f16.navigation.model.AlarmDTO;
 import com.example.howlstagram_f16.navigation.model.ContentDTO;
 import com.example.howlstagram_f16.navigation.model.FollowDTO;
+import com.example.howlstagram_f16.navigation.util.FcmPush;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -244,6 +245,9 @@ public class UserFragment extends Fragment {
 
         // Firestroe DB에 데이터 저장하기
         FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO);
+
+        String message = auth.getCurrentUser().getEmail() + getString(R.string.alarm_follow);
+        new FcmPush().sendMessage(destinationUid, "Howlstagram", message);
     }
 
     // 프로필이미지를 불러오는 메서드

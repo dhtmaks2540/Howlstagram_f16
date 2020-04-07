@@ -15,11 +15,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.howlstagram_f16.R;
 import com.example.howlstagram_f16.navigation.model.AlarmDTO;
 import com.example.howlstagram_f16.navigation.model.Comment;
-import com.example.howlstagram_f16.navigation.model.ContentDTO;
+import com.example.howlstagram_f16.navigation.util.FcmPush;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,7 +32,6 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import javax.annotation.Nullable;
 
@@ -75,9 +76,9 @@ public class CommentActivity extends AppCompatActivity {
     }
 
     // Comment가 달렸을 때 알려주는 알림메서드
-    void commentAlarm(String detinationUid, String message) {
+    void commentAlarm(String destinationUid, String message) {
         AlarmDTO alarmDTO = new AlarmDTO();
-        alarmDTO.setDestinationUid(detinationUid);
+        alarmDTO.setDestinationUid(destinationUid);
         alarmDTO.setUserId(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         alarmDTO.setKind(1);
         alarmDTO.setUid(FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -86,6 +87,9 @@ public class CommentActivity extends AppCompatActivity {
 
         // Firestore에 데이터 저장
         FirebaseFirestore.getInstance().collection("alarms").document().set(alarmDTO);
+
+        String msg = FirebaseAuth.getInstance().getCurrentUser().getEmail() + " " + getString(R.string.alarm_comment) + " of " + message;
+        new FcmPush().sendMessage(destinationUid, "Howlstagram", msg);
     }
 
     class CommentRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -110,7 +114,7 @@ public class CommentActivity extends AppCompatActivity {
                             for (DocumentSnapshot snapshot : queryDocumentSnapshots.getDocuments()) {
                                 comments.add(snapshot.toObject(new Comment().getClass()));
                             }
-                            // 리싸이클러뷰를 새로고침
+                            // 리싸이클러뷰를  새로고침
                             notifyDataSetChanged();
                         }
                     });
@@ -123,10 +127,17 @@ public class CommentActivity extends AppCompatActivity {
             return new CustomViewHolder(view);
         }
 
+
         private class CustomViewHolder extends RecyclerView.ViewHolder {
             CustomViewHolder(View view) {
                 super(view);
             }
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+            super.onViewRecycled(holder);
+            clear();
         }
 
         @Override
@@ -150,7 +161,9 @@ public class CommentActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             if (task.isSuccessful()) {
                                 Object url = task.getResult().get("image");
-                                Glide.with(holder.itemView).load(url).apply(RequestOptions.circleCropTransform()).into(ImageCommentViewItemProfile);
+                                Glide.with(holder.itemView.getContext()).load(url).apply(RequestOptions.circleCropTransform()).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).thumbnail(0.1f).into(ImageCommentViewItemProfile);
+                            } else {
+                                Glide.with(holder.itemView.getContext()).load(R.drawable.ic_account);
                             }
                         }
                     });
@@ -159,6 +172,10 @@ public class CommentActivity extends AppCompatActivity {
         @Override
         public int getItemCount() {
             return comments.size();
+        }
+
+        public void clear() {
+            comments.clear();
         }
     }
 }

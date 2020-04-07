@@ -16,12 +16,16 @@ import com.example.howlstagram_f16.navigation.AlarmFragment;
 import com.example.howlstagram_f16.navigation.DetailViewFragment;
 import com.example.howlstagram_f16.navigation.GridFragment;
 import com.example.howlstagram_f16.navigation.UserFragment;
+import com.example.howlstagram_f16.navigation.util.FcmPush;
 import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -94,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
         // Set default screen
         bottomNavigationView.setSelectedItemId(R.id.action_home);
+        // 로그인이 되자마자 Token저장
+        registerPushToken();
     }
 
     void setToolbarDefault() {
@@ -101,6 +107,22 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         toolbarBack.setVisibility(View.GONE);
         toolbarTitleImage.setVisibility(View.VISIBLE);
     }
+
+    // 특정기기한테 전송하기 위해서는 기기마다 TokenId를 받아와서 메시지 전송(TokenId 생성 메서드)
+    void registerPushToken() {
+        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+            @Override
+            public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                String token = task.getResult().getToken();
+                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                Map<String, Object> map = new HashMap<>();
+                map.put("pushToken", token);
+
+                FirebaseFirestore.getInstance().collection("pushtokens").document(uid).set(map);
+            }
+        });
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

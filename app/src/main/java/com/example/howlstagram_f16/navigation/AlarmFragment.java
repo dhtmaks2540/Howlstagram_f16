@@ -10,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.howlstagram_f16.R;
 import com.example.howlstagram_f16.navigation.model.AlarmDTO;
@@ -43,6 +44,13 @@ public class AlarmFragment extends Fragment {
         recyclerAlarmFragment.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         return view;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        System.out.println("AlarmFragment stop");
+        recyclerAlarmFragment.setAdapter(null);
     }
 
     class AlarmRecyclerviewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -88,6 +96,12 @@ public class AlarmFragment extends Fragment {
         }
 
         @Override
+        public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+            super.onViewRecycled(holder);
+            clear();
+        }
+
+        @Override
         public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
             final View view = holder.itemView;
 
@@ -100,9 +114,9 @@ public class AlarmFragment extends Fragment {
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                             if(task.isSuccessful()) {
                                 String url = (String)task.getResult().get("image");
-                                Log.d("UIDTAG", alarmDTOList.get(position).getUid());
-                                Log.d("URLTAG", url);
-                                Glide.with(view.getContext()).load(url).apply(RequestOptions.circleCropTransform()).into(ImageCommentViewItemProfile);
+                                Glide.with(view.getContext()).load(url).apply(RequestOptions.circleCropTransform()).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).thumbnail(0.1f).into(ImageCommentViewItemProfile);
+                            } else {
+                                Glide.with(view.getContext()).load(R.drawable.ic_account).into(ImageCommentViewItemProfile);
                             }
                         }
                     });
@@ -132,5 +146,10 @@ public class AlarmFragment extends Fragment {
         public int getItemCount() {
             return alarmDTOList.size();
         }
+
+        public void clear() {
+            alarmDTOList.clear();
+        }
+
     }
 }
