@@ -145,22 +145,26 @@ public class UserFragment extends Fragment {
             public void onEvent(@javax.annotation.Nullable DocumentSnapshot documentSnapshot, @javax.annotation.Nullable FirebaseFirestoreException e) {
                 if(documentSnapshot == null) return;
                 FollowDTO followDTO = documentSnapshot.toObject(FollowDTO.class);
-                if(Integer.toString(followDTO.getFollowingCount()) != null) {
-                    accountFollowingCount.setText(Integer.toString(followDTO.getFollowingCount()));
-                }
-                if(Integer.toString(followDTO.getFollowerCount()) != null) {
-                    accountFollowerCount.setText(Integer.toString(followDTO.getFollowerCount()));
-                    // 만약 내가 팔로우를 하고있으면
-                    if(followDTO.getFollowers().containsKey(currentUserId)) {
-                        accountFollowSignout.setText(getActivity().getString(R.string.follow_cancel));
-                        accountFollowSignout.getBackground().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorLightGray), PorterDuff.Mode.MULTIPLY);
-                    } else { // 내가 팔로우를 안하고있으면
-                        // 상대방 유저 프레그먼트일때
-                        if(uid != currentUserId) {
-                            accountFollowSignout.setText(getActivity().getString(R.string.follow));
-                            accountFollowSignout.getBackground().setColorFilter(null);
+                try {
+                    if(Integer.toString(followDTO.getFollowingCount()) != null) {
+                        accountFollowingCount.setText(Integer.toString(followDTO.getFollowingCount()));
+                    }
+                    if(Integer.toString(followDTO.getFollowerCount()) != null) {
+                        accountFollowerCount.setText(Integer.toString(followDTO.getFollowerCount()));
+                        // 만약 내가 팔로우를 하고있으면
+                        if(followDTO.getFollowers().containsKey(currentUserId)) {
+                            accountFollowSignout.setText(getActivity().getString(R.string.follow_cancel));
+                            accountFollowSignout.getBackground().setColorFilter(ContextCompat.getColor(getActivity(), R.color.colorLightGray), PorterDuff.Mode.MULTIPLY);
+                        } else { // 내가 팔로우를 안하고있으면
+                            // 상대방 유저 프레그먼트일때
+                            if(uid != currentUserId) {
+                                accountFollowSignout.setText(getActivity().getString(R.string.follow));
+                                accountFollowSignout.getBackground().setColorFilter(null);
+                            }
                         }
                     }
+                } catch (Exception e1) {
+
                 }
             }
         });

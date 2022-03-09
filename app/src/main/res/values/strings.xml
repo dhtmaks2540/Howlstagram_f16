@@ -3,7 +3,6 @@
     <string name="facebook_app_id">211403479957946</string>
     <string name="fb_login_protocol_scheme">fb211403479957946</string>
 
-
     <!-- Sign In -->
     <string name="email">Email</string>
     <string name="password">Password</string>
