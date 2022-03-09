@@ -22,3 +22,18 @@
 * [Glide](https://github.com/bumptech/glide)
 * [Gson](https://github.com/google/gson)
 * [okhttp](https://square.github.io/okhttp/)
+
+<br/>
+
+# 주요 기능
+
+* Firebase Authentication을 통해 로그인을 구현하였습니다.
+* Firebase Database를 사용하여 데이터베이스를 관리하였습니다.
+* Firebase Storage를 사용하여 이미지를 관리하였습니다.
+* Glide를 사용하여 이미지를 로드하였습니다.
+
+<br/>
+
+# 추가할 기능
+
+* Kotlin 코드로 변경 및 MVVM 패턴을 적용하여 리팩토링 하려고 합니다.
